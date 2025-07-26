@@ -57,10 +57,13 @@ export const AuthProvider = ({ children }) => {
       console.log('Login response:', response.data);
       const { access_token, user: userData } = response.data;
       
+      // Set token and user simultaneously
       localStorage.setItem('token', access_token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       setToken(access_token);
       setUser(userData);
       
+      console.log('Login successful, user set:', userData);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
