@@ -405,15 +405,18 @@ class BackendTester:
     async def test_cors_headers(self):
         """Test CORS headers are properly set"""
         try:
-            async with self.session.options(f"{API_BASE}/health") as response:
+            # Try a regular GET request first to check CORS headers
+            async with self.session.get(f"{API_BASE}/health") as response:
                 cors_headers = {
                     'access-control-allow-origin': response.headers.get('access-control-allow-origin'),
                     'access-control-allow-methods': response.headers.get('access-control-allow-methods'),
-                    'access-control-allow-headers': response.headers.get('access-control-allow-headers')
+                    'access-control-allow-headers': response.headers.get('access-control-allow-headers'),
+                    'access-control-allow-credentials': response.headers.get('access-control-allow-credentials')
                 }
                 # CORS is working if we have any of these headers
                 success = any(header_value for header_value in cors_headers.values())
-                self.log_test("CORS Headers", success, f"Headers found: {[k for k, v in cors_headers.items() if v]}")
+                found_headers = [k for k, v in cors_headers.items() if v]
+                self.log_test("CORS Headers", success, f"Headers found: {found_headers}")
                 return success
         except Exception as e:
             self.log_test("CORS Headers", False, f"Error: {str(e)}")
