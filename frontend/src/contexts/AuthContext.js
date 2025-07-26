@@ -33,11 +33,13 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/auth/me`);
+          console.log('Auth check successful:', response.data);
           setUser(response.data);
         } catch (error) {
           console.error('Auth check failed:', error);
           localStorage.removeItem('token');
           setToken(null);
+          setUser(null);
         }
       }
       setLoading(false);
