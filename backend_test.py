@@ -271,8 +271,18 @@ class BackendTester:
         
     async def test_upload_document(self):
         """Test document upload functionality"""
-        if not self.member_token or not self.family_id:
-            self.log_test("Upload Document", False, "Missing member token or family ID")
+        if not self.member_token:
+            self.log_test("Upload Document", False, "Missing member token")
+            return False
+            
+        # Get family_id from member user info if not available
+        if not self.family_id:
+            user_response = await self.make_request("GET", "/auth/me", token=self.member_token)
+            if user_response["status"] == 200 and isinstance(user_response["data"], dict):
+                self.family_id = user_response["data"].get("family_id")
+                
+        if not self.family_id:
+            self.log_test("Upload Document", False, "Could not get family ID")
             return False
             
         # Create a test file content
@@ -299,6 +309,10 @@ class BackendTester:
         if success and isinstance(response["data"], dict):
             doc_data = response["data"]
             success = doc_data.get("filename") == "test_document.txt"
+        else:
+            # Log the error details for debugging
+            self.log_test("Upload Document", success, f"Status: {response['status']}, Data: {response['data']}")
+            return success
             
         self.log_test("Upload Document", success, f"Status: {response['status']}")
         return success
