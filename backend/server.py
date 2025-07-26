@@ -235,10 +235,10 @@ async def get_families(current_user: User = Depends(get_current_user)):
 @app.post("/api/documents/upload", response_model=DocumentResponse)
 async def upload_document(
     file: UploadFile = File(...),
-    document_type: str = "other",
-    family_id: str = None,
-    description: str = None,
-    tags: str = "",
+    document_type: str = Form("other"),
+    family_id: str = Form(...),
+    description: str = Form(None),
+    tags: str = Form(""),
     current_user: User = Depends(get_current_user)
 ):
     """Upload a document"""
