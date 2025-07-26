@@ -67,10 +67,17 @@ class BackendTester:
                     # For file uploads, don't set content-type header
                     headers.pop("Content-Type", None)
                     form_data = aiohttp.FormData()
-                    for key, value in data.items():
-                        form_data.add_field(key, str(value))
+                    
+                    # Add form fields first
+                    if data:
+                        for key, value in data.items():
+                            form_data.add_field(key, str(value))
+                    
+                    # Add files
                     for key, file_data in files.items():
-                        form_data.add_field(key, file_data['content'], filename=file_data['filename'])
+                        form_data.add_field(key, file_data['content'], 
+                                          filename=file_data['filename'],
+                                          content_type='text/plain')
                     
                     async with self.session.post(url, headers=headers, data=form_data) as response:
                         return {
